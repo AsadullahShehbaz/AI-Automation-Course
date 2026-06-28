@@ -25,17 +25,16 @@ Each folder in this repo corresponds to a course module and contains:
 
 | Achievement | Detail |
 |---|---|
-| 🏆 Kaggle Datasets Grandmaster | Rank **#43** of 10,232 worldwide |
-| 📓 Kaggle Notebooks Master | Rank **#93** of 62,330 worldwide |
-| 💼 ML Internships | 2× Remote (+ ongoing Gen AI internship) |
-| 🎓 Education | BSCS Final Year, GCU Lahore |
+| 🏆 Kaggle Datasets Grandmaster | Rank **#26** of 10,232 worldwide |
+| 📓 Kaggle Notebooks Master | Rank **#80** of 62,330 worldwide |
+| 🎓 Education | BSCS, GCU Lahore |
 | 🔬 Expertise | AI/ML, Gen AI, LangChain, LangGraph, MCP, NLP |
 
 ---
 ## 🗺️ Course Modules Overview
 
-| Module | Topics Covered | Episodes |
-|--------|---------------|----------|
+| Module | Topics Covered |
+|--------|---------------|
 | 00 — Introduction | What is AI Automation, Tool Comparison, Setup  |
 | 01 — Basics | n8n Interface, Webhooks, JSON, Logic, Loops  |
 | 02 — AI Integration | OpenAI, Claude API, Prompt Engineering, AI Agents |
