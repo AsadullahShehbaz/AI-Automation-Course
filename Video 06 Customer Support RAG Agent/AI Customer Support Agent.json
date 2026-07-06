@@ -1,0 +1,558 @@
+{
+  "name": "AI Customer Support Agent Project",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        304,
+        176
+      ],
+      "id": "3a47d144-1396-4ed8-b83f-1f961a47032b",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "7gmAB3qvVrfmabxb",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.emailAddress }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        496,
+        176
+      ],
+      "id": "3ccec403-b6c1-4fd6-82e8-726cc0639b8e",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "F09zl6NnzOmShWhO",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        880,
+        368
+      ],
+      "id": "69de724a-d505-4cfc-b9c1-a07fcb93dc01",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jGRT3IBMqM3paxE7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1w8nJweSd88EOvjlILlqFwPC9uhJXNmbnwWcd9iID5kc",
+          "mode": "list",
+          "cachedResultName": "Asadullah AI",
+          "cachedResultUrl": "https://docs.google.com/document/d/1w8nJweSd88EOvjlILlqFwPC9uhJXNmbnwWcd9iID5kc/edit?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -496,
+        592
+      ],
+      "id": "efc3f133-e7b5-4b78-a797-8881ef74684c",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "OeWBA1yex1OXiIKP",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -288,
+        592
+      ],
+      "id": "bb4edb16-22a3-45b6-a7c4-3af1fec254de",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "9MAAwJRvOWcsUH3K",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        816
+      ],
+      "id": "4e91b2ee-c60d-40ae-b8fa-8d063a24f8d6",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "jGRT3IBMqM3paxE7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        784
+      ],
+      "id": "f7eb3f0f-5428-4935-81b6-7444f68c5880",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 100,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        944
+      ],
+      "id": "065e132d-ab7a-44e3-8e5c-393e5484f765",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BEUGN8DCM",
+          "mode": "list",
+          "cachedResultName": "all-asadullah-ai-youtube"
+        },
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_Text', ``, 'string') }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slackTool",
+      "typeVersion": 2.5,
+      "position": [
+        704,
+        176
+      ],
+      "id": "9ea89a10-4ecf-4795-b560-6ce18b2bd2a6",
+      "name": "Notify Team",
+      "webhookId": "d8a1721e-dae9-4edf-ad89-250aa218b9e5",
+      "credentials": {
+        "slackApi": {
+          "id": "djo5IN0CTWVOqVBO",
+          "name": "Slack account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Get complete updated information of Company from the vector store to answer customer queries ",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        176
+      ],
+      "id": "d7b04d1f-14ab-4d98-9f24-e2ffc74ba016",
+      "name": "Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "9MAAwJRvOWcsUH3K",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User Email : {{ $json.emailAddress }}\nEmail Subject : {{ $json.subject }}\nEmial Body : {{ $json.emailBody }}",
+        "options": {
+          "systemMessage": "=You are the intelligent Assistant of Asadullah AI, led by Kaggle Grandmaster (Rank #26) and Notebook Master (Rank #80). You provide solutions in AI, ML, DL, NLP, CV, Agentic AI, and SaaS Full‑Stack Web Development.\n\nYou are conversing with users via email.\n\nCRITICAL OPERATIONAL RULES:\n1. For Asadullah AI Policy or project‑related queries, you MUST first call the Vector Store tool to retrieve relevant information. Base responses only on retrieved content — never invent or assume details.\n2. Maintain a professional yet approachable tone. Replies must be concise, natural, and usually just a few lines. Expand only when explicitly requested.\n\nSPECIAL HANDLING (Orders or Website Complaints):\nIf the incoming email is an order request or a complaint about website errors, you MUST:\n- Call the 'Notify Team' tool immediately. You MUST pass the \"User Email\" provided in the input context into the tool message so the team can manually contact them.\n- Draft a reply email confirming receipt to the user.\n\nRESPONSE FORMAT INSTRUCTIONS:\n- You must output your response purely as standard text containing a valid JSON object. \n- DO NOT attempt to call a function, schema, or tool named 'json' to output this data. \n- Do not include markdown formatting or wrappers like ```json. \n\nMatch this JSON schema exactly:\n{\n  \"subject\": \"Re: [Original Subject]\",\n  \"body\": \"[Your concise email response body here]\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        320,
+        0
+      ],
+      "id": "19b2e5d5-d45f-4138-b956-c0d78b42faa7",
+      "name": "Customer Support Agent"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -576,
+        -16
+      ],
+      "id": "39a2fea1-1435-48df-a9a7-177097d1e73d",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7sLXrzsXxCGWq7Ri",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').first().json.emailAddress }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        0
+      ],
+      "id": "6e998bb1-6ba9-48f1-b6f4-4e55d6566b54",
+      "name": "Send a message",
+      "webhookId": "b86a8c04-61e9-4616-80d5-936f266be6aa",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "7sLXrzsXxCGWq7Ri",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return JSON.parse($input.first().json.output);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        0
+      ],
+      "id": "bd55b1aa-5ae2-48e6-baeb-f0658db2319a",
+      "name": "Format Output"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        192
+      ],
+      "id": "f5fb3992-95e4-4896-8212-7ec9852ed7b5",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "7gmAB3qvVrfmabxb",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $('Gmail Trigger').item.json.snippet }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Promotional",
+              "description": "Promotional message like social media platforms,marketing websites like ads offering discount and useless to reply  and spam like"
+            },
+            {
+              "category": "Customer Support",
+              "description": "Real Human message asking about our service , placing order , requesting to contact to customer support team or Asadullah AI Company information question answering"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -96,
+        -16
+      ],
+      "id": "a97cfb9e-db22-43cc-bc2b-4563d9a4f8fe",
+      "name": "Classifer Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "071c1dea-1f7b-41d0-a8e5-29b53e13971b",
+              "name": "emailAddress",
+              "value": "={{ $json.From.split(\"<\")[1].replace(\">\", \"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "34d99144-658a-407d-87a6-8c76825b14db",
+              "name": "subject",
+              "value": "={{ $json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "650fd0fd-9c15-402e-9c96-c6619119761d",
+              "name": "emailBody",
+              "value": "={{ $json.snippet }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -368,
+        -16
+      ],
+      "id": "ee6b1403-c8cd-4f63-9ccb-5c141c5165d5",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Customer Support Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Customer Support Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Team": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Support Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "Customer Support Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Support Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Output": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classifer Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classifer Agent": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Customer Support Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Classifer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "361887f5-73b3-4bc0-ad3f-00d9fc90f2c7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc3376012a8fcbc34e73f405a946284213abd3c5fe4f87466a1bc81410484839"
+  },
+  "nodeGroups": [],
+  "id": "ipoBP6f1dyjPQqfU",
+  "tags": []
+}
