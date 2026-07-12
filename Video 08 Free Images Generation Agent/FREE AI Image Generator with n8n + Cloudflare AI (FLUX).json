@@ -1,0 +1,261 @@
+{
+  "name": "FREE AI Image Generator with n8n + Cloudflare AI (FLUX)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## SETUP INSTRUCTIONS\n\n1. Create a free Cloudflare account.\n2. Enable **Workers AI** from the Cloudflare Dashboard.\n3. Create an **API Token** with Workers AI permissions.\n4. Copy your **Account ID** from the Cloudflare Dashboard.\n5. In n8n → Credentials → New → **Bearer Auth**\n6. Name it: `Cloudflare AI`\n7. Token: `YOUR_CLOUDFLARE_API_TOKEN`\n8. Open the **HTTP Request** node and select the `Cloudflare AI` credential.\n9. Replace `<ACCOUNT_ID>` in the request URL with your Cloudflare Account ID.\n\nModel used: `@cf/black-forest-labs/flux-2-klein-4b`\n\nFlow:\nFill Form → Build Prompt → Generate Image → Convert Base64 to Binary → Save Image to Local Folder\n\nResponse:\nCloudflare returns the generated image as a Base64 string (`result.image`). The workflow automatically converts it to binary and saves it as a `.jpg` file.\n\nOutput Folder:\n`C:\\n8n-files\\images\\`\n\nRequirements:\n- n8n Self Hosted\n- Cloudflare Workers AI Enabled\n- Valid API Token\n- Windows/Linux/macOS supported",
+        "height": 800,
+        "width": 692
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -784,
+        -96
+      ],
+      "id": "bd83b533-9b57-4ce6-ae50-5c9902e82df2",
+      "name": "Setup Instructions"
+    },
+    {
+      "parameters": {
+        "formTitle": "AI Image Generator - Flux",
+        "formDescription": "Generate free, professional, viral-ready images for social media using Flux AI (Replicate).",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Image Topic / Idea",
+              "placeholder": "e.g. A futuristic city skyline at golden hour",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Platform",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Instagram Post (1:1)"
+                  },
+                  {
+                    "option": "Instagram Story (9:16)"
+                  },
+                  {
+                    "option": "LinkedIn Post (3:2)"
+                  },
+                  {
+                    "option": "Twitter/X Post (16:9)"
+                  },
+                  {
+                    "option": "Facebook Post (3:2)"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Style",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Professional & Corporate"
+                  },
+                  {
+                    "option": "Vibrant & Viral"
+                  },
+                  {
+                    "option": "Minimal & Clean"
+                  },
+                  {
+                    "option": "Bold & Colorful"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        384
+      ],
+      "id": "47a942bb-f473-424b-b93a-ae7b36006626",
+      "name": "Image Request Form",
+      "webhookId": "e36de5ab-3b6a-43ae-8302-88dfc2847433"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst topic = input['Image Topic / Idea'];\nconst platform = input['Platform'];\nconst style = input['Style'];\n\nconst aspectMap = {\n  'Instagram Post (1:1)': '1:1',\n  'Instagram Story (9:16)': '9:16',\n  'LinkedIn Post (3:2)': '3:2',\n  'Twitter/X Post (16:9)': '16:9',\n  'Facebook Post (3:2)': '3:2'\n};\n\nconst styleMap = {\n  'Professional & Corporate': 'professional photography, corporate clean aesthetic, soft studio lighting, high-end commercial look, sharp focus, minimal background clutter',\n  'Vibrant & Viral': 'vibrant saturated colors, eye-catching composition, dynamic lighting, trending social media aesthetic, high engagement visual style',\n  'Minimal & Clean': 'minimalist composition, clean negative space, soft muted tones, elegant simplicity, modern flat design feel',\n  'Bold & Colorful': 'bold color contrast, punchy graphic style, high energy composition, striking visual impact'\n};\n\nconst qualityBoost = 'ultra high detail, 8k resolution, sharp focus, professional photography, perfect composition, social media ready, no text overlay, no watermark, no logo';\n\nconst finalPrompt = `${topic}, ${styleMap[style] || styleMap['Professional & Corporate']}, ${qualityBoost}`;\n\nreturn [{\n  json: {\n    prompt: finalPrompt,\n    aspect_ratio: aspectMap[platform] || '1:1',\n    platform,\n    style,\n    topic\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        384
+      ],
+      "id": "439d700c-537b-4261-b356-1a992354a27e",
+      "name": "Build Viral Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudflare.com/client/v4/accounts/1404e9738833b880f899f52f4b2b3729/ai/run/@cf/black-forest-labs/flux-2-klein-4b",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "={{ $json.prompt }}"
+            },
+            {
+              "name": "Aspect_Ratio",
+              "value": "={{ $json.aspect_ratio }}"
+            },
+            {
+              "name": "Platform",
+              "value": "={{ $json.platform }}"
+            },
+            {
+              "name": "Style",
+              "value": "={{ $json.style }}"
+            },
+            {
+              "name": "Topic",
+              "value": "={{ $json.topic }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        384
+      ],
+      "id": "231f37c5-5657-42e1-b648-d50e246dd8fd",
+      "name": "Create Prediction",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gPUEh76bXCjXrzRb",
+          "name": "Header Auth account 2"
+        },
+        "httpBearerAuth": {
+          "id": "7d5zBMFWFafBROAV",
+          "name": "ClaudeFlare_Cred"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "result.image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        384
+      ],
+      "id": "ea7bb7ce-ec3a-4623-8177-2551d956fd1f",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "C:\\n8n-files\\images\\post.jpg",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        384
+      ],
+      "id": "7c376df5-4f45-4aac-b8ac-c7839ce4ddef",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "content": "# Build a FREE AI Image Generator with n8n + Cloudflare AI (FLUX) | No API Cost",
+        "height": 96,
+        "width": 784
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        224,
+        256
+      ],
+      "typeVersion": 1,
+      "id": "f94d2379-838f-4e33-8b79-6dcc4a28b39c",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Image Request Form": {
+      "main": [
+        [
+          {
+            "node": "Build Viral Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Viral Prompt": {
+      "main": [
+        [
+          {
+            "node": "Create Prediction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Prediction": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "72b2acc3-78f4-421f-8572-344322b260b0",
+  "meta": {
+    "instanceId": "dc3376012a8fcbc34e73f405a946284213abd3c5fe4f87466a1bc81410484839"
+  },
+  "nodeGroups": [],
+  "id": "ip0gbTFVO6DdKlCE",
+  "tags": []
+}
