@@ -1,0 +1,309 @@
+{
+  "name": "AI Sales Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "readStatus": "unread",
+          "sender": "YOUR_EMAIL@gmail.com"
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -560,
+        0
+      ],
+      "id": "gmail-trigger-node",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "placeholder-id",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "binaryPropertyName": "attachment_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -352,
+        0
+      ],
+      "id": "extract-file-node",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const row = item.json;\n\n  if (row.time) {\n    let time = String(row.time).trim();\n\n    // Excel sometimes returns \"9:43\" instead of \"09:43:00\"\n    const parts = time.split(\":\");\n\n    if (parts.length === 2) {\n      // HH:MM -> HH:MM:SS\n      time = `${parts[0].padStart(2, \"0\")}:${parts[1].padStart(2, \"0\")}:00`;\n    } else if (parts.length === 3) {\n      // HH:MM:SS\n      time = `${parts[0].padStart(2, \"0\")}:${parts[1].padStart(2, \"0\")}:${parts[2].padStart(2, \"0\")}`;\n    }\n\n    row.time = time;\n  }\n\n  return {\n    json: row\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        0
+      ],
+      "id": "fix-time-node",
+      "name": "Fix Time Format"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        272,
+        240
+      ],
+      "id": "groq-model-1",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "placeholder-id",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a Chief Business Intelligence Analyst preparing a report for the CEO.\n\nYour audience is senior executives.\n\nYour writing style should be:\n- Professional\n- Executive-level\n- Business-focused\n- Concise\n- Actionable\n- Easy to scan\n\nUse the sales data below.\n\n==============================\nSALES SUMMARY\n==============================\n\nTotal Revenue:\nPKR {{ $json.dataset_summary.total_revenue }}\n\nTotal Orders:\n{{ $json.dataset_summary.total_orders }}\n\nTotal Quantity:\n{{ $json.dataset_summary.total_quantity }}\n\nAverage Order Value:\nPKR {{ $json.dataset_summary.average_order_value }}\n\nAverage Quantity per Order:\n{{$json.dataset_summary.average_quantity_per_order }}\n\nTop Product:\n{{ $json.dataset_summary.top_selling_product.name }}\nRevenue:\nPKR {{ $json.dataset_summary.top_selling_product.revenue }}\n\nLowest Product:\n{{$json.dataset_summary.lowest_selling_product.name }}\n\nBest Region:\n{{ $json.dataset_summary.top_region.name }}\n\nLowest Region:\n{{$json.dataset_summary.lowest_region.name }}\n\nBest Channel:\n{{ $json.dataset_summary.best_sales_channel.name }}\n\nPeak Sales Hour:\n{{$json.dataset_summary.peak_sales_hour.hour }}\n\nBest Sales Day:\n{{ $json.dataset_summary.best_sales_day.date }}\n\nProduct Sales:\n{{ JSON.stringify($json.dataset_summary.product_sales) }}\n\nRegion Sales:\n{{ JSON.stringify($json.dataset_summary.region_sales) }}\n\nChannel Sales:\n{{ JSON.stringify($json.dataset_summary.channel_sales) }}\n\nDaily Sales:\n{{ JSON.stringify($json.dataset_summary.daily_sales) }}\n\nHourly Sales:\n{{ JSON.stringify($json.dataset_summary.hourly_sales) }}\n\n==============================\n\nReturn ONLY valid HTML.\n\nDo not wrap the response inside markdown.\n\nDo not use ```html.\n\nCreate these sections:\n\n1. Executive Summary\n\n2. KPI Highlights\n\n3. Business Insights\n\n4. Opportunities\n\n5. Risks\n\n6. Recommendations\n\n7. CEO Decision Summary\n\nUse:\n- tables\n- colored badges\n- bullet lists\n- emojis sparingly\n- headings\n- professional formatting\n\nAt the end include\n\nBusiness Health Score\n\nusing Green (Excellent),\nYellow (Good),\nOrange (Average),\nRed (Critical)\n\nwith a score out of 100.\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        272,
+        96
+      ],
+      "id": "email-generator-node",
+      "name": "Email Report Generator"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a Senior Business Intelligence Analyst.\n\nCreate a detailed executive report specifically formatted for Slack.\n\nRequirements:\n\n- Use Slack markdown only.\n- Never output HTML.\n- Never output Markdown tables.\n- Use emojis professionally.\n- Keep it easy to scan.\n- Use bold headings.\n- Use bullet points.\n- Use short paragraphs.\n- Maximum 500 words.\n\nSales Data:\n\nTotal Revenue:\nPKR {{ $json.dataset_summary.total_revenue }}\n\nTotal Orders:\n{{ $json.dataset_summary.total_orders }}\n\nAverage Order Value:\nPKR {{ $json.dataset_summary.average_order_value }}\n\nAverage Quantity:\n{{ $json.dataset_summary.average_quantity_per_order }}\n\nTop Product:\n{{ $json.dataset_summary.top_selling_product.name }}\n\nLowest Product:\n{{ $json.dataset_summary.lowest_selling_product.name }}\n\nTop Region:\n{{ $json.dataset_summary.top_region.name }}\n\nLowest Region:\n{{ $json.dataset_summary.lowest_region.name }}\n\nBest Channel:\n{{ $json.dataset_summary.best_sales_channel.name }}\n\nPeak Sales Hour:\n{{ $json.dataset_summary.peak_sales_hour.hour }}\n\nBest Sales Day:\n{{ $json.dataset_summary.best_sales_day.date }}\n\nProduct Sales:\n{{ JSON.stringify($json.dataset_summary.product_sales) }}\n\nRegion Sales:\n{{ JSON.stringify($json.dataset_summary.region_sales) }}\n\nChannel Sales:\n{{ JSON.stringify($json.dataset_summary.channel_sales) }}\n\nDaily Sales:\n{{ JSON.stringify($json.dataset_summary.daily_sales) }}\n\nHourly Sales:\n{{ JSON.stringify($json.dataset_summary.hourly_sales) }}\n\nGenerate the report in exactly this structure:\n\n📊 EXECUTIVE SUMMARY\n\n(3-4 sentence business summary)\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n💰 KEY METRICS\n\n• Total Revenue:\n• Orders:\n• Average Order Value:\n• Average Quantity:\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n🏆 TOP PERFORMERS\n\n• Best Product\n• Best Region\n• Best Channel\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n📈 SALES TRENDS\n\nExplain:\n- Daily trend\n- Hourly trend\n- Customer purchasing behaviour\n- Product mix\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n⚠ RISKS\n\nList the top business risks with one sentence each.\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n🚀 RECOMMENDATIONS\n\nProvide exactly 5 actionable recommendations.\n\n━━━━━━━━━━━━━━━━━━━━━━\n\n🟢 BUSINESS HEALTH\n\nHealth Score:\n/100\n\nOne sentence explaining the score.\n\nFinish with:\n\n_Automated by AI Assistant using n8n_",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        272,
+        -192
+      ],
+      "id": "slack-generator-node",
+      "name": "Slack Report Generator"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -48
+      ],
+      "id": "groq-model-2",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "placeholder-id",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "YOUR_SLACK_CHANNEL_ID",
+          "mode": "list",
+          "cachedResultName": "slack-channel"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        624,
+        -192
+      ],
+      "id": "slack-send-node",
+      "name": "Send a message",
+      "webhookId": "placeholder-webhook-id",
+      "credentials": {
+        "slackApi": {
+          "id": "placeholder-id",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_EMAIL@gmail.com",
+        "subject": "=📊 CEO Sales Intelligence Report | {{ $now.format('DD') }} | Revenue PKR {{ $('Calculate KPIs & Patterns').item.json.dataset_summary.total_revenue.toLocaleString() }}",
+        "message": "=<!DOCTYPE html>\n<html>\n\n<head>\n\n<meta charset=\"UTF-8\">\n\n<style>\n\nbody{\nmargin:0;\nbackground:#eef2f7;\nfont-family:Segoe UI,Arial,sans-serif;\n}\n\n.wrapper{\nmax-width:980px;\nmargin:40px auto;\nbackground:#fff;\nborder-radius:18px;\noverflow:hidden;\nbox-shadow:0 15px 45px rgba(0,0,0,.08);\n}\n\n.header{\nbackground:linear-gradient(135deg,#0f172a,#1d4ed8);\npadding:40px;\ncolor:white;\n}\n\n.header h1{\nmargin:0;\nfont-size:34px;\n}\n\n.header p{\nmargin-top:10px;\nopacity:.9;\n}\n\n.metrics{\ndisplay:grid;\ngrid-template-columns:repeat(4,1fr);\ngap:20px;\npadding:35px;\n}\n\n.metric{\nbackground:#f8fafc;\npadding:20px;\nborder-radius:14px;\nborder-left:6px solid #2563eb;\n}\n\n.metric h3{\nmargin:0;\nfont-size:13px;\ncolor:#64748b;\n}\n\n.metric h1{\nmargin-top:12px;\nfont-size:30px;\n}\n\n.content{\npadding:40px;\nline-height:1.7;\n}\n\n.footer{\nbackground:#0f172a;\ncolor:white;\npadding:30px;\ntext-align:center;\n}\n\n.small{\nfont-size:13px;\nopacity:.75;\n}\n\n</style>\n\n</head>\n\n<body>\n\n<div class=\"wrapper\">\n\n<div class=\"header\">\n\n<h1>📈 Executive Sales Intelligence Report</h1>\n\n<p>\nAutomatically generated by AI Business Intelligence Platform\n</p>\n\n</div>\n\n<div class=\"metrics\">\n\n<div class=\"metric\">\n<h3>Total Revenue</h3>\n<h1>PKR {{ $('Calculate KPIs & Patterns').item.json.dataset_summary.total_revenue.toLocaleString() }}</h1>\n</div>\n\n<div class=\"metric\">\n<h3>Total Orders</h3>\n<h1>{{ $('Calculate KPIs & Patterns').item.json.dataset_summary.total_orders }}</h1>\n</div>\n\n<div class=\"metric\">\n<h3>Average Order Value</h3>\n<h1>PKR {{ $('Calculate KPIs & Patterns').item.json.dataset_summary.average_order_value.toLocaleString() }}</h1>\n</div>\n\n<div class=\"metric\">\n<h3>Best Region</h3>\n<h1>{{ $('Calculate KPIs & Patterns').item.json.dataset_summary.top_region.name }}</h1>\n</div>\n\n</div>\n\n<div class=\"content\">\n\n{{ $('Email Report Generator').item.json.text }}\n\n</div>\n\n<div class=\"footer\">\n\n<h3>AI ASSISTANT</h3>\n\n<div class=\"small\">\nAutomated Executive Reporting • Gmail • Slack • AI Analytics • n8n\n</div>\n\n</div>\n\n</div>\n\n</body>\n\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        96
+      ],
+      "id": "gmail-send-node",
+      "name": "Send a message1",
+      "webhookId": "placeholder-webhook-id",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "placeholder-id",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node\n// Mode: Run Once for All Items\n\nconst rows = items.map(item => item.json);\n\n// ----------------------\n// KPI Variables\n// ----------------------\nlet totalRevenue = 0;\nlet totalOrders = rows.length;\nlet totalQuantity = 0;\n\nconst itemSales = {};\nconst regionSales = {};\nconst channelSales = {};\nconst hourlySales = {};\nconst dailySales = {};\n\n// ----------------------\n// Calculate KPIs\n// ----------------------\n\nfor (const row of rows) {\n\n    const revenue = Number(row.revenue || 0);\n    const qty = Number(row.quantity || 0);\n\n    totalRevenue += revenue;\n    totalQuantity += qty;\n\n    // Product Sales\n    itemSales[row.item] = (itemSales[row.item] || 0) + revenue;\n\n    // Region Sales\n    regionSales[row.region] = (regionSales[row.region] || 0) + revenue;\n\n    // Channel Sales\n    channelSales[row.channel] = (channelSales[row.channel] || 0) + revenue;\n\n    // Daily Sales\n    dailySales[row.date] = (dailySales[row.date] || 0) + revenue;\n\n    // Hourly Sales\n    if (row.time) {\n        const hour = row.time.split(\":\")[0];\n        hourlySales[hour] = (hourlySales[hour] || 0) + revenue;\n    }\n\n}\n\n// ----------------------\n// Helper Function\n// ----------------------\n\nfunction topEntry(obj){\n    return Object.entries(obj)\n        .sort((a,b)=>b[1]-a[1])[0];\n}\n\nfunction bottomEntry(obj){\n    return Object.entries(obj)\n        .sort((a,b)=>a[1]-b[1])[0];\n}\n\n// ----------------------\n// KPIs\n// ----------------------\n\nconst averageOrderValue =\n    totalOrders ? totalRevenue / totalOrders : 0;\n\nconst averageQuantity =\n    totalOrders ? totalQuantity / totalOrders : 0;\n\nconst topProduct = topEntry(itemSales);\nconst topRegion = topEntry(regionSales);\nconst topChannel = topEntry(channelSales);\nconst peakHour = topEntry(hourlySales);\nconst bestDay = topEntry(dailySales);\n\nconst lowestProduct = bottomEntry(itemSales);\nconst lowestRegion = bottomEntry(regionSales);\n\n// ----------------------\n// Output\n// ----------------------\n\nreturn [\n{\njson:{\n\ndataset_summary:{\n\ntotal_orders:totalOrders,\n\ntotal_revenue:totalRevenue,\n\ntotal_quantity:totalQuantity,\n\naverage_order_value:Number(averageOrderValue.toFixed(2)),\n\naverage_quantity_per_order:Number(averageQuantity.toFixed(2)),\n\ntop_selling_product:{\nname:topProduct?.[0],\nrevenue:topProduct?.[1]\n},\n\nlowest_selling_product:{\nname:lowestProduct?.[0],\nrevenue:lowestProduct?.[1]\n},\n\ntop_region:{\nname:topRegion?.[0],\nrevenue:topRegion?.[1]\n},\n\nlowest_region:{\nname:lowestRegion?.[0],\nrevenue:lowestRegion?.[1]\n},\n\nbest_sales_channel:{\nname:topChannel?.[0],\nrevenue:topChannel?.[1]\n},\n\npeak_sales_hour:{\nhour:peakHour?.[0]+\":00\",\nrevenue:peakHour?.[1]\n},\n\nbest_sales_day:{\ndate:bestDay?.[0],\nrevenue:bestDay?.[1]\n},\n\nproduct_sales:itemSales,\n\nregion_sales:regionSales,\n\nchannel_sales:channelSales,\n\nhourly_sales:hourlySales,\n\ndaily_sales:dailySales\n\n}\n\n}\n}\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        0
+      ],
+      "id": "kpi-calculation-node",
+      "name": "Calculate KPIs & Patterns"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Fix Time Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Time Format": {
+      "main": [
+        [
+          {
+            "node": "Calculate KPIs & Patterns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Report Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Slack Report Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Report Generator": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Report Generator": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate KPIs & Patterns": {
+      "main": [
+        [
+          {
+            "node": "Email Report Generator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack Report Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "generic-version-id",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "generic-instance-id"
+  },
+  "nodeGroups": [],
+  "id": "generic-workflow-id",
+  "tags": []
+}
