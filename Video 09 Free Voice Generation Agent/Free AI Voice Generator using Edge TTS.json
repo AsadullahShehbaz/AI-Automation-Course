@@ -9,11 +9,8 @@
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [
-        -160,
-        -32
-      ],
-      "id": "07924096-268d-4ef9-b39a-34928acd2880",
+      "position": [-160, -32],
+      "id": "readme-node",
       "name": "📋 Read Me First"
     },
     {
@@ -22,28 +19,10 @@
       },
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.4,
-      "position": [
-        -128,
-        512
-      ],
-      "id": "3a75b4ab-0cfd-4e3e-9e49-3b2c8305792c",
+      "position": [-128, 512],
+      "id": "chat-trigger",
       "name": "When chat message received",
-      "webhookId": "eb1dd0cc-55d1-47fe-8667-bb88d0403dea"
-    },
-    {
-      "parameters": {
-        "content": "## ⚙️ STEP 1 — EDIT THESE 2 VALUES\nfolderPath: where files get saved on YOUR computer\nvoiceName: which Edge TTS voice to use\n\nTry other voices by running in terminal:\nedge-tts --list-voices\n\nPopular ones:\n- en-US-GuyNeural (male)\n- en-US-JennyNeural (female)\n- en-GB-RyanNeural (British male)",
-        "height": 452,
-        "width": 300
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        288,
-        16
-      ],
-      "id": "5b4d7379-b83a-4614-bc92-e22c1da6c258",
-      "name": "📋 Settings Note"
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID"
     },
     {
       "parameters": {
@@ -53,7 +32,7 @@
               "id": "a1",
               "name": "folderPath",
               "type": "string",
-              "value": "/tmp/ai-voice-generator"
+              "value": "/your/safe/folder/path"
             },
             {
               "id": "a2",
@@ -73,41 +52,20 @@
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [
-        144,
-        512
-      ],
-      "id": "ca6b64e9-4b8a-4f2b-8e5f-41f727e10efe",
+      "position": [144, 512],
+      "id": "settings-node",
       "name": "⚙️ Settings (Edit Me First!)"
     },
     {
       "parameters": {
-        "jsCode": "const text = $json.textInput;\n\nif (!text || text.trim().length === 0) {\n  throw new Error('No text received! Type something in the chat before running this workflow.');\n}\n\n// Turn the plain text into a real .txt file (base64 encoded, required by n8n's binary format)\nreturn {\n  json: { text },\n  binary: {\n    data: {\n      data: Buffer.from(text, 'utf8').toString('base64'),\n      mimeType: 'text/plain',\n      fileName: 'narration.txt'\n    }\n  }\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        384,
-        512
-      ],
-      "id": "6c3dec96-b5f1-4494-9f78-c3c462ceb905",
-      "name": "📝 Convert Text to File"
-    },
-    {
-      "parameters": {
         "operation": "write",
-        "fileName": "=C:/n8n-files/voices/narration.txt",
-        "options": {
-          "append": false
-        }
+        "fileName": "={{ $('⚙️ Settings (Edit Me First!)').item.json.folderPath }}/narration.txt",
+        "options": { "append": false }
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
-      "position": [
-        624,
-        512
-      ],
-      "id": "c151f76d-e5d7-4d68-ab80-77eef530a2b8",
+      "position": [624, 512],
+      "id": "save-file",
       "name": "💾 Save narration.txt"
     },
     {
@@ -116,11 +74,8 @@
       },
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
-      "position": [
-        864,
-        512
-      ],
-      "id": "4cd5c51c-3b3e-4851-8ad8-70095bf1b9b9",
+      "position": [864, 512],
+      "id": "generate-voice",
       "name": "🎙️ Generate Voice (Edge TTS)"
     },
     {
@@ -130,99 +85,17 @@
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
-      "position": [
-        1104,
-        512
-      ],
-      "id": "b4235ec4-97a3-49c9-b89f-7cf9c737c25e",
+      "position": [1104, 512],
+      "id": "read-mp3",
       "name": "🔊 Read Final MP3"
-    },
-    {
-      "parameters": {
-        "content": "## ✅ DONE!\nThis node outputs the finished MP3 as binary data.\n\nFrom here, students can chain on:\n- 'Respond to Chat' node to preview it\n- Send to Telegram/Discord\n- Upload to Google Drive\n- Feed into a video-editing automation\n\nThis is the natural 'Part 2' cliffhanger for your next lesson.",
-        "height": 444,
-        "width": 332
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        624,
-        32
-      ],
-      "id": "78b107c0-7051-47ce-ac39-4c206978e49f",
-      "name": "📋 Done Note"
-    },
-    {
-      "parameters": {
-        "content": "# Run in Node.js Command Prompt \n\n set N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false\n set N8N_BINARY_DATA_MODEL=filesystem\n set N8N_RESTRICT_FILE_ACCESS_TO=C:\\n8n-files\\voices;",
-        "width": 512
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        992,
-        192
-      ],
-      "typeVersion": 1,
-      "id": "bc654e0b-3c2f-46f6-84da-24f88f4bfd53",
-      "name": "Sticky Note"
     }
   ],
-  "pinData": {},
   "connections": {
     "When chat message received": {
-      "main": [
-        [
-          {
-            "node": "⚙️ Settings (Edit Me First!)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "⚙️ Settings (Edit Me First!)", "type": "main", "index": 0 }]]
     },
     "⚙️ Settings (Edit Me First!)": {
-      "main": [
-        [
-          {
-            "node": "📝 Convert Text to File",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "📝 Convert Text to File": {
-      "main": [
-        [
-          {
-            "node": "💾 Save narration.txt",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "💾 Save narration.txt": {
-      "main": [
-        [
-          {
-            "node": "🎙️ Generate Voice (Edge TTS)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "🎙️ Generate Voice (Edge TTS)": {
-      "main": [
-        [
-          {
-            "node": "🔊 Read Final MP3",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "📝 Convert Text to File", "type": "main", "index": 0 }]]
     }
   },
   "active": false,
@@ -231,11 +104,10 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "15d129c9-28cf-4cf3-a22e-4a2bd4e718ce",
+  "versionId": "REPLACE_WITH_YOUR_VERSION_ID",
   "meta": {
-    "instanceId": "dc3376012a8fcbc34e73f405a946284213abd3c5fe4f87466a1bc81410484839"
+    "instanceId": "REPLACE_WITH_YOUR_INSTANCE_ID"
   },
-  "nodeGroups": [],
-  "id": "uw6nCFFfSiLiieTI",
+  "id": "workflow-id",
   "tags": []
 }
