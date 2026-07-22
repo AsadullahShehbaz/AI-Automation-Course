@@ -1,0 +1,899 @@
+{
+  "name": "AI VOICE CALLING AGENT | ELEVEN LABS & TWILIO",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# AI VOICE CALLING AGENT | ELEVEN LABS & TWILIO",
+        "height": 80,
+        "width": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "2ae311f5-911e-40a4-a9da-448c098314f9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1J9N8z5wfLxkzV7eke57JtHG-WmFx1SuxpFY06h1UbhE",
+          "mode": "list",
+          "cachedResultName": "AI Voice Calling Agent Logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J9N8z5wfLxkzV7eke57JtHG-WmFx1SuxpFY06h1UbhE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1867351152,
+          "mode": "list",
+          "cachedResultName": "Table data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J9N8z5wfLxkzV7eke57JtHG-WmFx1SuxpFY06h1UbhE/edit#gid=1867351152"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "User": "={{ $json.User }}",
+            "Call Summary": "={{ $json.call_summary }}",
+            "Call Summary Title ": "={{ $json.call_summary_title }}",
+            "Duration(Second)": "={{ $json.call_duration }}"
+          },
+          "matchingColumns": [
+            "User"
+          ],
+          "schema": [
+            {
+              "id": "Call Summary",
+              "displayName": "Call Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Call Summary Title ",
+              "displayName": "Call Summary Title ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Duration(Second)",
+              "displayName": "Duration(Second)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "User",
+              "displayName": "User",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        432,
+        0
+      ],
+      "id": "b84d539b-82fa-491d-97fb-4c335fd4668e",
+      "name": "Call Sheet Sync",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YVADeY2OKmD5YC5J",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "70d0baed-bd31-4abe-be3d-2196b001db93",
+              "name": "call_summary",
+              "value": "={{ $json.body.data.analysis.transcript_summary }}",
+              "type": "string"
+            },
+            {
+              "id": "cf3ed2a6-d1a7-4b40-a1f9-6638b0a7bc0a",
+              "name": "call_summary_title",
+              "value": "={{ $json.body.data.analysis.call_summary_title }}",
+              "type": "string"
+            },
+            {
+              "id": "b92871c9-2f24-4c7e-a1e3-1be63b209d67",
+              "name": "call_duration",
+              "value": "={{ $json.body.data.metadata.call_duration_secs }}",
+              "type": "string"
+            },
+            {
+              "id": "9088a2bf-b8ce-44af-a6b5-4cf6c29c76d3",
+              "name": "User",
+              "value": "={{ $json.body.data.conversation_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        0
+      ],
+      "id": "aaa25212-b6d1-4825-b4f7-bde4e8b5e939",
+      "name": "Voice Metrics"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e89e8747-09e7-4480-b35c-e04ed68b4e9b",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "875f17cf-7755-4a13-a390-c9ae994e2931",
+      "name": "Listen Calls",
+      "webhookId": "e89e8747-09e7-4480-b35c-e04ed68b4e9b"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e89e8747-09e7-4480-b35c-e04ed68b4e9b",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        144,
+        -320
+      ],
+      "id": "0c55a6c5-7df6-4d48-8e7d-52af000be16c",
+      "name": "Webhook",
+      "webhookId": "e89e8747-09e7-4480-b35c-e04ed68b4e9b"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "1ef9-223-123-2-188.ngrok-free.app",
+            "user-agent": "ElevenLabs/1.0",
+            "content-length": "16125",
+            "accept": "*/*",
+            "accept-encoding": "gzip",
+            "content-type": "application/json",
+            "elevenlabs-signature": "t=1784509159,v0=24c4b7fe8907b983b7895c811c3af3af1bed37bdfe4e379ce3564a13cb20d320",
+            "x-forwarded-for": "34.59.11.47",
+            "x-forwarded-host": "1ef9-223-123-2-188.ngrok-free.app",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "type": "post_call_transcription",
+            "event_timestamp": 1784509159,
+            "data": {
+              "agent_id": "agent_6301kxx8bb8zeyxrf6m7pvpxz51v",
+              "agent_name": "Asadullah AI Youtube",
+              "conversation_product": "agent",
+              "status": "done",
+              "user_id": "ZQ1cmNKPruf5sDzVg6fw3VS2YK12",
+              "branch_id": "agtbrch_8401kxx8bc1af7nbw5d03nrrnep0",
+              "version_id": null,
+              "metadata": {
+                "start_time_unix_secs": 1784509125,
+                "accepted_time_unix_secs": 1784509125,
+                "call_duration_secs": 32,
+                "cost": 194,
+                "deletion_settings": {
+                  "deletion_time_unix_secs": null,
+                  "deleted_logs_at_time_unix_secs": null,
+                  "deleted_audio_at_time_unix_secs": null,
+                  "deleted_transcript_at_time_unix_secs": null,
+                  "delete_transcript_and_pii": false,
+                  "delete_audio": false
+                },
+                "feedback": {
+                  "type": null,
+                  "overall_score": null,
+                  "likes": 0,
+                  "dislikes": 0,
+                  "rating": null,
+                  "comment": null
+                },
+                "authorization_method": "authorization_header",
+                "charging": {
+                  "dev_discount": true,
+                  "is_burst": false,
+                  "tier": "free",
+                  "llm_usage": {
+                    "irreversible_generation": {
+                      "model_usage": {
+                        "gemini-2.5-flash": {
+                          "input": {
+                            "tokens": 5805,
+                            "price": 0.00087075
+                          },
+                          "input_cache_read": {
+                            "tokens": 0,
+                            "price": 0
+                          },
+                          "input_cache_write": {
+                            "tokens": 0,
+                            "price": 0
+                          },
+                          "output_total": {
+                            "tokens": 113,
+                            "price": 0.0000678
+                          }
+                        }
+                      }
+                    },
+                    "initiated_generation": {
+                      "model_usage": {
+                        "gemini-2.5-flash": {
+                          "input": {
+                            "tokens": 11473,
+                            "price": 0.00172095
+                          },
+                          "input_cache_read": {
+                            "tokens": 0,
+                            "price": 0
+                          },
+                          "input_cache_write": {
+                            "tokens": 0,
+                            "price": 0
+                          },
+                          "output_total": {
+                            "tokens": 164,
+                            "price": 0.0000984
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "llm_price": 0.00181935,
+                  "llm_charge": 18,
+                  "call_charge": 176,
+                  "platform_charge": 176,
+                  "platform_usage": {
+                    "category_usage": {
+                      "voice": {
+                        "credits": 176,
+                        "price": 0.0173648572228642,
+                        "quantity": 0.5269457166859259
+                      }
+                    }
+                  },
+                  "platform_price": 0.0173648572228642,
+                  "free_minutes_consumed": 0,
+                  "free_llm_dollars_consumed": 0,
+                  "tts_usage": {
+                    "primary_tts_model": "eleven_v3_conversational",
+                    "total_audio_output_seconds": 24.319999999999997,
+                    "total_characters": 385,
+                    "per_voice_usage": [
+                      {
+                        "voice_id": "auq43ws1oslv0tO4BDa7",
+                        "audio_output_seconds": 24.319999999999997
+                      }
+                    ]
+                  },
+                  "asr_usage": {
+                    "asr_model": "scribe_realtime",
+                    "total_transcription_calls": 63,
+                    "total_audio_input_seconds": 16.64800000000001
+                  }
+                },
+                "phone_call": null,
+                "batch_call": null,
+                "termination_reason": "end_call tool was called.",
+                "error": null,
+                "warnings": [],
+                "main_language": "en",
+                "rag_usage": null,
+                "text_only": false,
+                "features_usage": {
+                  "language_detection": {
+                    "enabled": true,
+                    "used": false
+                  },
+                  "transfer_to_agent": {
+                    "enabled": false,
+                    "used": false
+                  },
+                  "transfer_to_number": {
+                    "enabled": false,
+                    "used": false
+                  },
+                  "multivoice": {
+                    "enabled": false,
+                    "used": false
+                  },
+                  "dtmf_tones": {
+                    "enabled": false,
+                    "used": false
+                  },
+                  "external_mcp_servers": {
+                    "enabled": false,
+                    "used": false
+                  },
+                  "pii_zrm_workspace": false,
+                  "pii_zrm_agent": false,
+                  "tool_dynamic_variable_updates": {
+                    "enabled": false,
+                    "used": false
+                  },
+                  "is_livekit": false,
+                  "voicemail_detection": {
+                    "enabled": false,
+                    "used": false
+                  },
+                  "dtmf_input": {
+                    "enabled": false,
+                    "used": false
+                  },
+                  "workflow": {
+                    "enabled": false,
+                    "tool_node": {
+                      "enabled": false,
+                      "used": false
+                    },
+                    "standalone_agent_node": {
+                      "enabled": false,
+                      "used": false
+                    },
+                    "phone_number_node": {
+                      "enabled": false,
+                      "used": false
+                    },
+                    "end_node": {
+                      "enabled": false,
+                      "used": false
+                    }
+                  },
+                  "agent_testing": {
+                    "enabled": false,
+                    "tests_ran_after_last_modification": false,
+                    "tests_ran_in_last_7_days": false
+                  },
+                  "versioning": {
+                    "enabled": true,
+                    "used": false
+                  },
+                  "file_input": {
+                    "enabled": true,
+                    "used": false
+                  }
+                },
+                "eleven_assistant": {
+                  "is_eleven_assistant": false
+                },
+                "initiator_id": "ZQ1cmNKPruf5sDzVg6fw3VS2YK12",
+                "conversation_initiation_source": "react_sdk",
+                "conversation_initiation_source_version": "1.9.0",
+                "timezone": "Asia/Karachi",
+                "async_metadata": null,
+                "whatsapp": null,
+                "sms": null,
+                "agent_created_from": "ui",
+                "agent_last_updated_from": "ui",
+                "voice_rewards": [],
+                "cost_fiat": 0.0191842072228642
+              },
+              "analysis": {
+                "evaluation_criteria_results": {},
+                "data_collection_results": {},
+                "evaluation_criteria_results_list": [],
+                "data_collection_results_list": [],
+                "call_successful": "success",
+                "call_success_score": null,
+                "transcript_summary": "The user requested the AI team to create a complete fine-tuning course. The agent enthusiastically acknowledged the suggestion and confirmed it would pass the request to the Asadullah AI team for consideration. The conversation concluded with a polite farewell.",
+                "call_summary_title": "Fine-tuning course request",
+                "scoped": [],
+                "sentiment_analysis": null
+              },
+              "visited_agents": [
+                {
+                  "agent_id": "agent_6301kxx8bb8zeyxrf6m7pvpxz51v",
+                  "branch_id": "agtbrch_8401kxx8bc1af7nbw5d03nrrnep0"
+                }
+              ],
+              "conversation_initiation_client_data": {
+                "conversation_config_override": {
+                  "asr": null,
+                  "turn": null,
+                  "tts": {
+                    "model_id": null,
+                    "voice_id": null,
+                    "stability": null,
+                    "speed": null,
+                    "similarity_boost": null
+                  },
+                  "conversation": {
+                    "text_only": false
+                  },
+                  "agent": {
+                    "first_message": null,
+                    "language": "en",
+                    "max_conversation_duration_message": null,
+                    "prompt": null
+                  }
+                },
+                "custom_llm_extra_body": {},
+                "user_id": "ZQ1cmNKPruf5sDzVg6fw3VS2YK12",
+                "source_info": {
+                  "source": "react_sdk",
+                  "version": "1.9.0"
+                },
+                "branch_id": null,
+                "environment": null,
+                "starting_workflow_node_id": null,
+                "dynamic_variables": {
+                  "system__agent_id": "agent_6301kxx8bb8zeyxrf6m7pvpxz51v",
+                  "system__agent_turns": 3,
+                  "system__current_agent_turns": 3,
+                  "system__current_subagent_turns": 3,
+                  "system__current_agent_id": "agent_6301kxx8bb8zeyxrf6m7pvpxz51v",
+                  "system__conversation_id": "conv_8001kxyggn40eafacrzjmjkxjvjz",
+                  "system__call_duration_secs": 31,
+                  "system__time_utc": "2026-07-20T00:59:17.412138+00:00",
+                  "system__time": "Monday, 05:59 20 July 2026",
+                  "system__timezone": "Asia/Karachi",
+                  "system__is_text_only": false,
+                  "system__channel": "react_sdk",
+                  "system__caller_id": null,
+                  "system__called_number": null,
+                  "system__call_sid": null,
+                  "system__conversation_history": "{\"x-elevenlabs-history\": true, \"entries\": [{\"role\": \"agent\", \"message\": \"Hello I am AlphaX the AI Assistant for...\"}, {\"role\": \"user\", \"message\": \"I want that, uh, you request the team to make a fine-tuning complete course as soon as possible.\"}, {\"role\": \"agent\", \"message\": \"[happy] That's a [excited] fantastic suggestion! I'll be sure to pass your request for a complete fine-tuning course to the Asadullah AI team. We're always looking for ways to improve and expand our content to best serve our students...\"}, {\"role\": \"user\", \"message\": \"Okay, goodbye now.\"}, {\"role\": \"agent\", \"message\": \"[happy] It was a pleasure assisting you! Have a wonderful day.\"}, {\"role\": \"agent\", \"tool_requests\": [{\"tool_name\": \"end_call\", \"params_as_json\": {\"system__message_to_speak\": \"[happy] It was a pleasure assisting you! Have a wonderful day.\", \"reason\": \"The user said goodbye.\"}}]}, {\"role\": \"agent\", \"tool_results\": [{\"tool_name\": \"end_call\", \"result_value\": \"{\\\"result_type\\\":\\\"end_call_success\\\",\\\"status\\\":\\\"success\\\",\\\"reason\\\":\\\"The user said goodbye.\\\",\\\"message\\\":null}\"}]}]}",
+                  "system__user_id": "ZQ1cmNKPruf5sDzVg6fw3VS2YK12",
+                  "system__initiator_id": "ZQ1cmNKPruf5sDzVg6fw3VS2YK12"
+                },
+                "tool_mock_config": {
+                  "mocking_strategy": "none",
+                  "fallback_strategy": "raise_error",
+                  "mocked_tool_names": []
+                }
+              },
+              "environment": "production",
+              "hiding_reason": null,
+              "smb_metadata": null,
+              "conversation_id": "conv_8001kxyggn40eafacrzjmjkxjvjz",
+              "has_audio": true,
+              "has_user_audio": true,
+              "has_response_audio": true,
+              "has_auxiliary_audio": false,
+              "transcript": [
+                {
+                  "role": "agent",
+                  "agent_metadata": {
+                    "agent_id": "agent_6301kxx8bb8zeyxrf6m7pvpxz51v",
+                    "branch_id": "agtbrch_8401kxx8bc1af7nbw5d03nrrnep0",
+                    "workflow_node_id": null,
+                    "version_id": null
+                  },
+                  "message": "Hello I am AlphaX the AI Assistant for...",
+                  "multivoice_message": null,
+                  "tool_calls": [],
+                  "tool_results": [],
+                  "feedback": null,
+                  "llm_override": null,
+                  "time_in_call_secs": 0,
+                  "conversation_turn_metrics": {
+                    "metrics": {
+                      "convai_tts_service_ttfb": {
+                        "elapsed_time": 0.18954668380320072
+                      },
+                      "convai_ttf_audio_since_silence": {
+                        "elapsed_time": 0.1908926130272448
+                      }
+                    },
+                    "convai_asr_provider": null,
+                    "convai_tts_model": "eleven_v3_conversational",
+                    "convai_tts_cascade": null
+                  },
+                  "rag_retrieval_info": null,
+                  "llm_usage": null,
+                  "interrupted": true,
+                  "ignored_as_backchannel": false,
+                  "original_message": "Hello I am AlphaX the AI Assistant for Asadullah AI Youtube ! How can I help you today?",
+                  "reasoning": [],
+                  "source_medium": null,
+                  "source_event_id": 1,
+                  "used_static_kb_document_ids": [],
+                  "analysis": null,
+                  "user_identifier": null,
+                  "file_input": null,
+                  "contextual_update_info": null,
+                  "config_snapshot_id": null,
+                  "reasoned": false
+                },
+                {
+                  "role": "user",
+                  "agent_metadata": null,
+                  "message": "I want that, uh, you request the team to make a fine-tuning complete course as soon as possible.",
+                  "multivoice_message": null,
+                  "tool_calls": [],
+                  "tool_results": [],
+                  "feedback": null,
+                  "llm_override": null,
+                  "time_in_call_secs": 3,
+                  "conversation_turn_metrics": {
+                    "metrics": {
+                      "convai_asr_trailing_service_latency": {
+                        "elapsed_time": 0.07608301239088178
+                      }
+                    },
+                    "convai_asr_provider": "Scribe v2 Realtime",
+                    "convai_tts_model": null,
+                    "convai_tts_cascade": null
+                  },
+                  "rag_retrieval_info": null,
+                  "llm_usage": null,
+                  "interrupted": false,
+                  "ignored_as_backchannel": false,
+                  "original_message": null,
+                  "reasoning": [],
+                  "source_medium": "audio",
+                  "source_event_id": 64,
+                  "used_static_kb_document_ids": [],
+                  "analysis": null,
+                  "user_identifier": null,
+                  "file_input": null,
+                  "contextual_update_info": null,
+                  "config_snapshot_id": null,
+                  "reasoned": false
+                },
+                {
+                  "role": "agent",
+                  "agent_metadata": {
+                    "agent_id": "agent_6301kxx8bb8zeyxrf6m7pvpxz51v",
+                    "branch_id": "agtbrch_8401kxx8bc1af7nbw5d03nrrnep0",
+                    "workflow_node_id": null,
+                    "version_id": null
+                  },
+                  "message": "[happy] That's a [excited] fantastic suggestion! I'll be sure to pass your request for a complete fine-tuning course to the Asadullah AI team. We're always looking for ways to improve and expand our content to best serve our students...",
+                  "multivoice_message": null,
+                  "tool_calls": [],
+                  "tool_results": [],
+                  "feedback": null,
+                  "llm_override": null,
+                  "time_in_call_secs": 11,
+                  "conversation_turn_metrics": {
+                    "metrics": {
+                      "convai_llm_service_ttf_sentence": {
+                        "elapsed_time": 0.4166371701285243
+                      },
+                      "convai_llm_service_ttfb": {
+                        "elapsed_time": 0.2998360791243613
+                      },
+                      "convai_llm_service_tt_last_sentence": {
+                        "elapsed_time": 0.8463190132752061
+                      },
+                      "convai_tts_service_ttfb": {
+                        "elapsed_time": 0.3036425272002816
+                      },
+                      "convai_ttf_audio_since_silence": {
+                        "elapsed_time": 1.0963887621760369
+                      }
+                    },
+                    "convai_asr_provider": null,
+                    "convai_tts_model": "eleven_v3_conversational",
+                    "convai_tts_cascade": null
+                  },
+                  "rag_retrieval_info": null,
+                  "llm_usage": null,
+                  "interrupted": true,
+                  "ignored_as_backchannel": false,
+                  "original_message": "[happy] That's a [excited] fantastic suggestion! I'll be sure to pass your request for a complete fine-tuning course to the Asadullah AI team. We're always looking for ways to improve and expand our content to best serve our students.\n\n",
+                  "reasoning": [],
+                  "source_medium": null,
+                  "source_event_id": 64,
+                  "used_static_kb_document_ids": [
+                    "WzIft3qtT8VuliAcyYl1"
+                  ],
+                  "analysis": null,
+                  "user_identifier": null,
+                  "file_input": null,
+                  "contextual_update_info": null,
+                  "config_snapshot_id": null,
+                  "reasoned": false
+                },
+                {
+                  "role": "user",
+                  "agent_metadata": null,
+                  "message": "Okay, goodbye now.",
+                  "multivoice_message": null,
+                  "tool_calls": [],
+                  "tool_results": [],
+                  "feedback": null,
+                  "llm_override": null,
+                  "time_in_call_secs": 24,
+                  "conversation_turn_metrics": {
+                    "metrics": {
+                      "convai_asr_trailing_service_latency": {
+                        "elapsed_time": 0.1401325990445912
+                      }
+                    },
+                    "convai_asr_provider": "Scribe v2 Realtime",
+                    "convai_tts_model": null,
+                    "convai_tts_cascade": null
+                  },
+                  "rag_retrieval_info": null,
+                  "llm_usage": null,
+                  "interrupted": false,
+                  "ignored_as_backchannel": false,
+                  "original_message": null,
+                  "reasoning": [],
+                  "source_medium": "audio",
+                  "source_event_id": 152,
+                  "used_static_kb_document_ids": [],
+                  "analysis": null,
+                  "user_identifier": null,
+                  "file_input": null,
+                  "contextual_update_info": null,
+                  "config_snapshot_id": null,
+                  "reasoned": false
+                },
+                {
+                  "role": "agent",
+                  "agent_metadata": {
+                    "agent_id": "agent_6301kxx8bb8zeyxrf6m7pvpxz51v",
+                    "branch_id": "agtbrch_8401kxx8bc1af7nbw5d03nrrnep0",
+                    "workflow_node_id": null,
+                    "version_id": null
+                  },
+                  "message": "[happy] It was a pleasure assisting you! Have a wonderful day.",
+                  "multivoice_message": null,
+                  "tool_calls": [],
+                  "tool_results": [],
+                  "feedback": null,
+                  "llm_override": null,
+                  "time_in_call_secs": 26,
+                  "conversation_turn_metrics": {
+                    "metrics": {
+                      "convai_llm_service_ttfb": {
+                        "elapsed_time": 0.644885715097189
+                      },
+                      "convai_llm_tool_request_generation_latency": {
+                        "elapsed_time": 0.6452762051485479
+                      },
+                      "convai_tts_service_ttfb": {
+                        "elapsed_time": 0.26377396704629064
+                      },
+                      "convai_ttf_audio_since_silence": {
+                        "elapsed_time": 7.878914424110204
+                      }
+                    },
+                    "convai_asr_provider": null,
+                    "convai_tts_model": "eleven_v3_conversational",
+                    "convai_tts_cascade": null
+                  },
+                  "rag_retrieval_info": null,
+                  "llm_usage": null,
+                  "interrupted": false,
+                  "ignored_as_backchannel": false,
+                  "original_message": null,
+                  "reasoning": [],
+                  "source_medium": null,
+                  "source_event_id": 152,
+                  "used_static_kb_document_ids": [],
+                  "analysis": null,
+                  "user_identifier": null,
+                  "file_input": null,
+                  "contextual_update_info": null,
+                  "config_snapshot_id": null,
+                  "reasoned": false
+                },
+                {
+                  "role": "agent",
+                  "agent_metadata": {
+                    "agent_id": "agent_6301kxx8bb8zeyxrf6m7pvpxz51v",
+                    "branch_id": "agtbrch_8401kxx8bc1af7nbw5d03nrrnep0",
+                    "workflow_node_id": null,
+                    "version_id": null
+                  },
+                  "message": null,
+                  "multivoice_message": null,
+                  "tool_calls": [
+                    {
+                      "type": "system",
+                      "request_id": "end_call_f1cab09190944675b3b83fc0bd0dc69c",
+                      "tool_name": "end_call",
+                      "params_as_json": "{\"system__message_to_speak\": \"[happy] It was a pleasure assisting you! Have a wonderful day.\", \"reason\": \"The user said goodbye.\"}",
+                      "tool_has_been_called": true,
+                      "tool_details": null
+                    }
+                  ],
+                  "tool_results": [],
+                  "feedback": null,
+                  "llm_override": null,
+                  "time_in_call_secs": 27,
+                  "conversation_turn_metrics": {
+                    "metrics": {
+                      "convai_llm_service_ttfb": {
+                        "elapsed_time": 0.644885715097189
+                      },
+                      "convai_llm_tool_request_generation_latency": {
+                        "elapsed_time": 0.6452762051485479
+                      },
+                      "convai_tts_service_ttfb": {
+                        "elapsed_time": 0.26377396704629064
+                      },
+                      "convai_ttf_audio_since_silence": {
+                        "elapsed_time": 7.878914424110204
+                      }
+                    },
+                    "convai_asr_provider": null,
+                    "convai_tts_model": "eleven_v3_conversational",
+                    "convai_tts_cascade": null
+                  },
+                  "rag_retrieval_info": null,
+                  "llm_usage": {
+                    "model_usage": {
+                      "gemini-2.5-flash": {
+                        "input": {
+                          "tokens": 2933,
+                          "price": 0.00043995
+                        },
+                        "input_cache_read": {
+                          "tokens": 0,
+                          "price": 0
+                        },
+                        "input_cache_write": {
+                          "tokens": 0,
+                          "price": 0
+                        },
+                        "output_total": {
+                          "tokens": 31,
+                          "price": 0.000018599999999999998
+                        }
+                      }
+                    }
+                  },
+                  "interrupted": false,
+                  "ignored_as_backchannel": false,
+                  "original_message": null,
+                  "reasoning": [],
+                  "source_medium": null,
+                  "source_event_id": 152,
+                  "used_static_kb_document_ids": [],
+                  "analysis": null,
+                  "user_identifier": null,
+                  "file_input": null,
+                  "contextual_update_info": null,
+                  "config_snapshot_id": null,
+                  "reasoned": false
+                },
+                {
+                  "role": "agent",
+                  "agent_metadata": {
+                    "agent_id": "agent_6301kxx8bb8zeyxrf6m7pvpxz51v",
+                    "branch_id": "agtbrch_8401kxx8bc1af7nbw5d03nrrnep0",
+                    "workflow_node_id": null,
+                    "version_id": null
+                  },
+                  "message": null,
+                  "multivoice_message": null,
+                  "tool_calls": [],
+                  "tool_results": [
+                    {
+                      "request_id": "end_call_f1cab09190944675b3b83fc0bd0dc69c",
+                      "tool_name": "end_call",
+                      "result_value": "{\"result_type\":\"end_call_success\",\"status\":\"success\",\"reason\":\"The user said goodbye.\",\"message\":null}",
+                      "is_error": false,
+                      "is_blocked": false,
+                      "tool_has_been_called": true,
+                      "tool_latency_secs": 0.501376667059958,
+                      "error_type": "",
+                      "raw_error_message": "",
+                      "dynamic_variable_updates": [],
+                      "type": "system",
+                      "result": {
+                        "result_type": "end_call_success",
+                        "status": "success",
+                        "reason": "The user said goodbye.",
+                        "message": null
+                      }
+                    }
+                  ],
+                  "feedback": null,
+                  "llm_override": null,
+                  "time_in_call_secs": 30,
+                  "conversation_turn_metrics": null,
+                  "rag_retrieval_info": null,
+                  "llm_usage": null,
+                  "interrupted": false,
+                  "ignored_as_backchannel": false,
+                  "original_message": null,
+                  "reasoning": [],
+                  "source_medium": null,
+                  "source_event_id": 152,
+                  "used_static_kb_document_ids": [],
+                  "analysis": null,
+                  "user_identifier": null,
+                  "file_input": null,
+                  "contextual_update_info": null,
+                  "config_snapshot_id": null,
+                  "reasoned": false
+                }
+              ],
+              "tag_ids": [],
+              "realtime_config_snapshots": null,
+              "otlp_traces": null
+            }
+          },
+          "webhookUrl": "http://localhost:5678/webhook-test/e89e8747-09e7-4480-b35c-e04ed68b4e9b",
+          "executionMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Voice Metrics": {
+      "main": [
+        [
+          {
+            "node": "Call Sheet Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listen Calls": {
+      "main": [
+        [
+          {
+            "node": "Voice Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b093320d-bd36-4ba6-b287-ba802ae77f87",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc3376012a8fcbc34e73f405a946284213abd3c5fe4f87466a1bc81410484839"
+  },
+  "nodeGroups": [],
+  "id": "KtzmCfTHgwU4l4jj",
+  "tags": []
+}
